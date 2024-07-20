@@ -8,7 +8,8 @@
 
 ## 작동 방법
 1. firebase를 사용하기 위해 json 파일의 경로를 알맞게 설정.(동일 폴더에 추가함)
-2. 아래 커맨드를 수행
+2. templates folder를 현재 파일 경로에 추가함.
+3. 아래 커맨드를 수행
 '''python
 python app.py
 
