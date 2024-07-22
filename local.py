@@ -3,9 +3,7 @@ import numpy as np
 from base64 import b64encode
 import os
 import json
-
-# Import flask
-# from flask import Flask, render_template, Response
+import threading
 
 # Import firebase
 import firebase_admin
@@ -23,13 +21,31 @@ def image_to_base64(img):
     return img_b64
 
 
+# Firebase update function
+def update_firebase(ref, labels):
+    for label in labels:
+        label_name = label.split(": ")[0]
+        pos = label.split(": ")[1]
+        if float(pos) > 0.8:
+            if label_name == "fall":
+                ref.update({"fall": True})
+            elif label_name == "jump":
+                ref.update({"jump": True})
+            elif label_name == "sitting":
+                ref.update({"sitting": True})
+            elif label_name == "standing":
+                ref.update({"standing": True})
+            elif label_name == "walking":
+                ref.update({"walking": True})
+
+
 # Function to start the video stream and perform object detection
 def start_video_and_detect():
 
     #######firebase Setting#################
     # Environment Setting for using firebase
     cred = credentials.Certificate(
-        "json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
+        "/Users/sangwon_back/Chrome_download/IoT_Project/json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
     )
     # cred = credentials.Certificate('/Users/sangwon_back/Chrome_download/IoT_Project/local_execution/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json')
 
@@ -53,14 +69,16 @@ def start_video_and_detect():
     nms_threshold = 0.45
 
     # Load the YOLOv8 model
-    # model = YOLO('/Users/sangwon_back/Chrome_download/IoT_Project/local_execution/pose_model.pt')
-    model = YOLO("model/pose_model.pt")
+    model = YOLO("/Users/sangwon_back/Chrome_download/IoT_Project/model/pose_model.pt")
+    # model = YOLO('model/pose_model.pt')
 
     # webcam
     # cap = cv2.VideoCapture(0)
 
     # mp4
-    cap = cv2.VideoCapture("video/falling_video.mp4")
+    cap = cv2.VideoCapture(
+        "/Users/sangwon_back/Chrome_download/IoT_Project/video/falling_video.mp4"
+    )
 
     while True:
         ret, frame = cap.read()
@@ -103,21 +121,9 @@ def start_video_and_detect():
         # Display the frame with detections
         cv2.imshow("YOLOv8 Object Detection", frame)
 
-        # update firebase data
-        for label in labels:
-            label_name = label.split(": ")[0]
-            pos = label.split(": ")[1]
-            if float(pos) > 0.8:
-                if label_name == "fall":
-                    ref.update({"fall": True})
-                elif label_name == "jump":
-                    ref.update({"jump": True})
-                elif label_name == "sitting":
-                    ref.update({"sitting": True})
-                elif label_name == "standing":
-                    ref.update({"standing": True})
-                elif label_name == "walking":
-                    ref.update({"walking": True})
+        # Update Firebase data in a separate thread
+        if labels:
+            threading.Thread(target=update_firebase, args=(ref, labels)).start()
 
         # Check for key presses
         key = cv2.waitKey(1) & 0xFF
