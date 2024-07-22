@@ -90,8 +90,8 @@ def start_video_and_detect():
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(frame, f"{class_name}: {confidence:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
 
-        # Display the frame with detections
-        cv2.imshow('YOLOv8 Object Detection', frame)
+        ## Display the frame with detections
+        #cv2.imshow('YOLOv8 Object Detection', frame)
 
         #Encode the frame as JPEG to be used in webpage
         ret, buffer = cv2.imencode('.jpg', frame)
