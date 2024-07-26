@@ -4,6 +4,7 @@ from base64 import b64encode
 import os
 import json
 import threading
+import time
 
 # Import firebase
 import firebase_admin
@@ -21,12 +22,13 @@ def image_to_base64(img):
     return img_b64
 
 
-#state of positions
+# State of positions
 isfall = False
 issitting = False
 iswalking = False
 isstanding = False
 isjump = False
+
 
 # Firebase update function
 def update_firebase(ref, labels):
@@ -52,20 +54,20 @@ def update_firebase(ref, labels):
                 ref.update({"walking": True})
                 iswalking = True
         else:
-            if(isfall):
-                ref.update({"fall": False })
+            if isfall:
+                ref.update({"fall": False})
                 isfall = False
-            if(isjump):
-                ref.update({"jump": False })
+            if isjump:
+                ref.update({"jump": False})
                 isjump = False
-            if(isstanding):
-                ref.update({"standing": False })
+            if isstanding:
+                ref.update({"standing": False})
                 isstanding = False
-            if(issitting):
-                ref.update({"sitting": False })
+            if issitting:
+                ref.update({"sitting": False})
                 issitting = False
-            if(iswalking):
-                ref.update({"walking": False })
+            if iswalking:
+                ref.update({"walking": False})
                 iswalking = False
 
 
@@ -75,9 +77,8 @@ def start_video_and_detect():
     #######firebase Setting#################
     # Environment Setting for using firebase
     cred = credentials.Certificate(
-        "./json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
+        "/home/skku/IoT_Project/json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
     )
-    # cred = credentials.Certificate('/Users/sangwon_back/Chrome_download/IoT_Project/local_execution/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json')
 
     app_name = "myApp"
 
@@ -99,24 +100,22 @@ def start_video_and_detect():
     nms_threshold = 0.45
 
     # Load the YOLOv8 model
-    model = YOLO("./model/pose_model.pt")
-    # model = YOLO('model/pose_model.pt')
+    model = YOLO("/home/skku/IoT_Project/model/pose_model.pt")
 
     # webcam
     cap = cv2.VideoCapture(0)
-
-    # # mp4
-    # cap = cv2.VideoCapture(
-    #     "/Users/sangwon_back/Chrome_download/IoT_Project/video/falling_video.mp4"
-    # )
+    cap.set(cv2.CAP_PROP_FPS, 1)  # Set the frame rate to 1 FPS
 
     while True:
+        # Clear buffer by reading a few frames (adjust as needed)
+        for _ in range(5):
+            cap.read()
+
         ret, frame = cap.read()
         if not ret:
             break
 
         # Perform object detection using YOLOv8
-        # results = model(frame, verbose=False, device='mps', conf=confidence_threshold, iou=nms_threshold)
         results = model(
             frame,
             verbose=False,
@@ -163,7 +162,7 @@ def start_video_and_detect():
             filename = filename.replace(":", "_")  # Replace colons with underscores
             filename = filename.replace(" ", "_")  # Replace spaces with underscores
             cv2.imwrite(filename, frame)
-
+        # time.sleep(delay)
     # Release the capture and close windows
     cap.release()
     cv2.destroyAllWindows()
