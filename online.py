@@ -3,7 +3,10 @@ import numpy as np
 from base64 import b64encode
 import os
 import json
+<<<<<<< HEAD
 import threading
+=======
+>>>>>>> 2e74cfa ([refactor] Modifying the overall code)
 
 # Import flask
 from flask import Flask, render_template, Response
@@ -34,6 +37,7 @@ def image_to_base64(img):
     return img_b64
 
 
+<<<<<<< HEAD
 # Firebase update function
 def update_firebase(ref, labels):
     for label in labels:
@@ -52,6 +56,8 @@ def update_firebase(ref, labels):
                 ref.update({"walking": True})
 
 
+=======
+>>>>>>> 2e74cfa ([refactor] Modifying the overall code)
 # Function to start the video stream and perform object detection
 def start_video_and_detect():
 
@@ -136,9 +142,36 @@ def start_video_and_detect():
         # Yield the frame in the required format
         yield (b"--frame\r\n" b"Content-Type: image/jpeg\r\n\r\n" + frame + b"\r\n")
 
+<<<<<<< HEAD
         # Update Firebase data in a separate thread
         if labels:
             threading.Thread(target=update_firebase, args=(ref, labels)).start()
+=======
+        for label in labels:
+            label_name = label.split(": ")[0]
+            pos = label.split(": ")[1]
+            if float(pos) > 0.8:
+                if label_name == "fall":
+                    ref.update({"fall": True})
+                elif label_name == "jump":
+                    ref.update({"jump": True})
+                elif label_name == "sitting":
+                    ref.update({"sitting": True})
+                elif label_name == "standing":
+                    ref.update({"standing": True})
+                elif label_name == "walking":
+                    ref.update({"walking": True})
+
+        # # Check for key presses
+        # key = cv2.waitKey(1) & 0xFF
+        # if key == ord('q'):  # Press 'q' to quit
+        #     break
+        # elif key == ord('c'):  # Press 'c' to capture and save the image
+        #     filename = "_".join(labels) + ".jpg"
+        #     filename = filename.replace(":", "_")  # Replace colons with underscores
+        #     filename = filename.replace(" ", "_")  # Replace spaces with underscores
+        #     cv2.imwrite(filename, frame)
+>>>>>>> 2e74cfa ([refactor] Modifying the overall code)
 
     # # Release the capture and close windows
     # cap.release()
@@ -152,5 +185,13 @@ def video_feed():
     )
 
 
+<<<<<<< HEAD
+=======
+# # Main function
+# def main():
+#     # Start the video stream and perform object detection
+#     start_video_and_detect()
+
+>>>>>>> 2e74cfa ([refactor] Modifying the overall code)
 if __name__ == "__main__":
     app.run(debug=True)
