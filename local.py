@@ -154,7 +154,6 @@ def start_video_and_detect():
         # Update Firebase data in a separate thread
         if labels:
             threading.Thread(target=update_firebase, args=(ref, labels)).start()
-
         # Check for key presses
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q"):  # Press 'q' to quit

@@ -17,6 +17,13 @@ from firebase_admin import credentials, db
 from ultralytics import YOLO
 
 
+#state of positions
+isfall = False
+issitting = False
+iswalking = False
+isstanding = False
+isjump = False
+
 # flask
 app = Flask(__name__)
 
@@ -36,21 +43,43 @@ def image_to_base64(img):
 
 # Firebase update function
 def update_firebase(ref, labels):
+    global isfall, issitting, iswalking, isstanding, isjump
+
     for label in labels:
         label_name = label.split(": ")[0]
         pos = label.split(": ")[1]
         if float(pos) > 0.8:
             if label_name == "fall":
                 ref.update({"fall": True})
+                isfall = True
             elif label_name == "jump":
                 ref.update({"jump": True})
+                isjump = True
             elif label_name == "sitting":
                 ref.update({"sitting": True})
+                issitting = True
             elif label_name == "standing":
                 ref.update({"standing": True})
+                isstanding = True
             elif label_name == "walking":
                 ref.update({"walking": True})
-
+                iswalking = True
+        else:
+            if(isfall):
+                ref.update({"fall": False })
+                isfall = False
+            if(isjump):
+                ref.update({"jump": False })
+                isjump = False
+            if(isstanding):
+                ref.update({"standing": False })
+                isstanding = False
+            if(issitting):
+                ref.update({"sitting": False })
+                issitting = False
+            if(iswalking):
+                ref.update({"walking": False })
+                iswalking = False
 
 # Function to start the video stream and perform object detection
 def start_video_and_detect():
@@ -60,7 +89,7 @@ def start_video_and_detect():
     cred = credentials.Certificate(
         "json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
     )
-    app_name = "myApp"
+    app_name = "myApp123"
 
     if app_name not in firebase_admin._apps:
         cur_app = firebase_admin.initialize_app(
@@ -84,12 +113,14 @@ def start_video_and_detect():
     model = YOLO("model/pose_model.pt")
 
     # webcam
-    # cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(0)
 
     # mp4
-    cap = cv2.VideoCapture("video/falling_video.mp4")
+    #cap = cv2.VideoCapture("video/falling_video.mp4")
 
     while True:
+        global isfall
+
         ret, frame = cap.read()
         if not ret:
             break
