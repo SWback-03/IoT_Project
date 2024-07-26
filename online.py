@@ -115,12 +115,16 @@ def start_video_and_detect():
 
     # webcam
     cap = cv2.VideoCapture(0)
+    cap.set(cv2.CAP_PROP_FPS, 1)  # Set the frame rate to 1 FPS
 
     # mp4
     # cap = cv2.VideoCapture("video/falling_video.mp4")
 
     while True:
         global isfall
+
+        for _ in range(5):
+            cap.read()
 
         ret, frame = cap.read()
         if not ret:
