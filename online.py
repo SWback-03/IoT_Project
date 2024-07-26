@@ -58,7 +58,7 @@ def start_video_and_detect():
     #######firebase Setting#################
     # Environment Setting for using firebase
     cred = credentials.Certificate(
-        "json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
+        "./json/silvercare-84496-firebase-adminsdk-tksu6-bac3439fd8.json"
     )
     app_name = "myApp"
 
@@ -81,13 +81,14 @@ def start_video_and_detect():
 
     # Load the YOLOv8 model
     # model = YOLO('/Users/sangwon_back/Chrome_download/IoT_Project/local_execution/pose_model.pt')
-    model = YOLO("model/pose_model.pt")
+    # model = YOLO("./model/pose_model_ncnn_model")
+    model = YOLO('model/pose_model.pt')
 
     # webcam
     # cap = cv2.VideoCapture(0)
 
     # mp4
-    cap = cv2.VideoCapture("video/falling_video.mp4")
+    cap = cv2.VideoCapture("./video/falling_video.mp4")
 
     while True:
         ret, frame = cap.read()
@@ -98,7 +99,7 @@ def start_video_and_detect():
         results = model(
             frame,
             verbose=False,
-            device="cpu",
+            device="mps",
             conf=confidence_threshold,
             iou=nms_threshold,
         )

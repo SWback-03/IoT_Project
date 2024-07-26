@@ -21,52 +21,22 @@ def image_to_base64(img):
     return img_b64
 
 
-#state of positions
-isfall = False
-issitting = False
-iswalking = False
-isstanding = False
-isjump = False
-
 # Firebase update function
 def update_firebase(ref, labels):
-    global isfall, issitting, iswalking, isstanding, isjump
-
     for label in labels:
         label_name = label.split(": ")[0]
         pos = label.split(": ")[1]
         if float(pos) > 0.8:
             if label_name == "fall":
                 ref.update({"fall": True})
-                isfall = True
             elif label_name == "jump":
                 ref.update({"jump": True})
-                isjump = True
             elif label_name == "sitting":
                 ref.update({"sitting": True})
-                issitting = True
             elif label_name == "standing":
                 ref.update({"standing": True})
-                isstanding = True
             elif label_name == "walking":
                 ref.update({"walking": True})
-                iswalking = True
-        else:
-            if(isfall):
-                ref.update({"fall": False })
-                isfall = False
-            if(isjump):
-                ref.update({"jump": False })
-                isjump = False
-            if(isstanding):
-                ref.update({"standing": False })
-                isstanding = False
-            if(issitting):
-                ref.update({"sitting": False })
-                issitting = False
-            if(iswalking):
-                ref.update({"walking": False })
-                iswalking = False
 
 
 # Function to start the video stream and perform object detection
@@ -99,44 +69,49 @@ def start_video_and_detect():
     nms_threshold = 0.45
 
     # Load the YOLOv8 model
-    model = YOLO("./model/pose_model.pt")
-    # model = YOLO('model/pose_model.pt')
+    # model = YOLO("./model/pose_model_ncnn_model")
+    model = YOLO('model/pose_model.pt')
 
     # webcam
-    cap = cv2.VideoCapture(0)
+    # cap = cv2.VideoCapture(0)
 
-    # # mp4
-    # cap = cv2.VideoCapture(
-    #     "/Users/sangwon_back/Chrome_download/IoT_Project/video/falling_video.mp4"
-    # )
+    # mp4
+    cap = cv2.VideoCapture(
+        "./video/falling_video.mp4"
+    )
 
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-
+        # cv2.imshow("ff", frame)
+        # cv2.waitKey(0)
         # Perform object detection using YOLOv8
         # results = model(frame, verbose=False, device='mps', conf=confidence_threshold, iou=nms_threshold)
         results = model(
             frame,
             verbose=False,
-            device="cpu",
+            device="mps",
             conf=confidence_threshold,
             iou=nms_threshold,
         )
 
         # Get the detected objects
         detections = results[0].boxes.data
-
+        # print("@@", detections)
         # Generate labels for the detected objects
         labels = []
         for detection in detections:
             class_id = int(detection[5])
+            # if class_id <0 or class_id >5:
+            #     continue
+            # print("!!!!")
             class_name = model.names[class_id]
             confidence = float(detection[4])
             if confidence >= confidence_threshold:
                 x1, y1, x2, y2 = map(int, detection[:4])
                 labels.append(f"{class_name}: {confidence:.2f}")
+                # print("@@@@@@")
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
                 cv2.putText(
                     frame,
