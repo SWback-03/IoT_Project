@@ -1,17 +1,66 @@
 import 'package:best_flutter_ui_templates/fitness_app_theme.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'package:firebase_database/firebase_database.dart';
 
-class MediterranesnDietView extends StatelessWidget {
+class MediterranesnDietView extends StatefulWidget {
   final AnimationController? animationController;
   final Animation<double>? animation;
 
-  const MediterranesnDietView(
-      {Key? key, this.animationController, this.animation})
+  const MediterranesnDietView({Key? key, this.animationController, this.animation})
       : super(key: key);
 
   @override
+  _MediterranesnDietViewState createState() => _MediterranesnDietViewState();
+}
+
+class _MediterranesnDietViewState extends State<MediterranesnDietView> with TickerProviderStateMixin {
+  late DatabaseReference databaseRef;
+  int sittingCount = 0;
+  int walkingCount = 0;
+  int jumpingCount = 0;
+  int fallingCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    databaseRef = FirebaseDatabase.instance.ref();
+    _initializeListener();
+  }
+
+  void _initializeListener() {
+    databaseRef.onValue.listen((event) {
+      final snapshot = event.snapshot;
+      if (snapshot.exists && snapshot.value is Map) {
+        final data = snapshot.value as Map<dynamic, dynamic>;
+        data.forEach((key, value) {
+          if (value is bool) {
+            if (value) {
+              setState(() {
+                if (key == 'sitting') {
+                  sittingCount++;
+                } else if (key == 'walking') {
+                  walkingCount++;
+                } else if (key == 'jump') {
+                  jumpingCount++;
+                } else if (key == 'fall') {
+                  fallingCount++;
+                }
+              });
+            }
+          }
+        });
+      }
+    }, onError: (error) {
+      print('Error receiving data: $error');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final animationController = widget.animationController!;
+    final animation = widget.animation!;
+
     return AnimatedBuilder(
       animation: animationController!,
       builder: (BuildContext context, Widget? child) {
@@ -339,7 +388,7 @@ class MediterranesnDietView extends StatelessWidget {
                                         CrossAxisAlignment.center,
                                         children: <Widget>[
                                           Text(
-                                            '${(5 * animation!.value).toInt()}회',
+                                            '${(fallingCount * animation!.value).toInt()}회',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontFamily:
@@ -352,7 +401,7 @@ class MediterranesnDietView extends StatelessWidget {
                                             ),
                                           ),
                                           Text(
-                                            'falling',
+                                            'Falling',
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               fontFamily:
@@ -360,8 +409,8 @@ class MediterranesnDietView extends StatelessWidget {
                                               fontWeight: FontWeight.bold,
                                               fontSize: 12,
                                               letterSpacing: 0.0,
-                                              color: FitnessAppTheme.grey
-                                                  .withOpacity(0.5),
+                                              color: HexColor('#FF0000')
+                                                  .withOpacity(0.8),
                                             ),
                                           ),
                                         ],
@@ -377,7 +426,7 @@ class MediterranesnDietView extends StatelessWidget {
                                             HexColor("#8A98E8"),
                                             HexColor("#8A98E8")
                                           ],
-                                          angle: 100 +
+                                          angle: fallingCount*12 +
                                               (360 - 100) *
                                                   (1.0 - animation!.value)),
                                       child: SizedBox(
@@ -439,7 +488,7 @@ class MediterranesnDietView extends StatelessWidget {
                                     child: Row(
                                       children: <Widget>[
                                         Container(
-                                          width: ((70 / 1.2) * animation!.value),
+                                          width: ((70*(sittingCount/30)) * animation!.value),
                                           height: 4,
                                           decoration: BoxDecoration(
                                             gradient: LinearGradient(colors: [
@@ -458,7 +507,7 @@ class MediterranesnDietView extends StatelessWidget {
                                 Padding(
                                   padding: const EdgeInsets.only(top: 6),
                                   child: Text(
-                                    '${(27 * animation!.value).toInt()}회',
+                                    '${(sittingCount * animation!.value).toInt()}회',
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       fontFamily: FitnessAppTheme.fontName,
@@ -506,8 +555,7 @@ class MediterranesnDietView extends StatelessWidget {
                                         child: Row(
                                           children: <Widget>[
                                             Container(
-                                              width: ((70 / 2) *
-                                                  animationController!.value),
+                                              width: ((70*(walkingCount/30)) * animation!.value),
                                               height: 4,
                                               decoration: BoxDecoration(
                                                 gradient:
@@ -527,7 +575,7 @@ class MediterranesnDietView extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 6),
                                       child: Text(
-                                        '${(14 * animation!.value).toInt()}회',
+                                        '${(walkingCount * animation!.value).toInt()}회',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily: FitnessAppTheme.fontName,
@@ -577,8 +625,7 @@ class MediterranesnDietView extends StatelessWidget {
                                         child: Row(
                                           children: <Widget>[
                                             Container(
-                                              width: ((70 / 2.5) *
-                                                  animationController!.value),
+                                              width: ((70*(jumpingCount/30)) * animation!.value),
                                               height: 4,
                                               decoration: BoxDecoration(
                                                 gradient:
@@ -598,7 +645,7 @@ class MediterranesnDietView extends StatelessWidget {
                                     Padding(
                                       padding: const EdgeInsets.only(top: 6),
                                       child: Text(
-                                        '${(10 * animation!.value).toInt()}회',
+                                        '${(jumpingCount * animation!.value).toInt()}회',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           fontFamily: FitnessAppTheme.fontName,

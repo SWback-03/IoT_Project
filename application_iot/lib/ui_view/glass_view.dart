@@ -49,7 +49,7 @@ class GlassView extends StatelessWidget {
                                 padding: const EdgeInsets.only(
                                     left: 68, bottom: 12, right: 16, top: 12),
                                 child: Text(
-                                  '스마트 수돗물 상태 관리 기기 WATERWORKS를 만나보세요.',
+                                  '스마트한 수돗물 상태 관리 도우미 WATERWORKS를 만나보세요.',
                                   textAlign: TextAlign.left,
                                   style: TextStyle(
                                     fontFamily: FitnessAppTheme.fontName,
