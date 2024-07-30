@@ -1,7 +1,5 @@
 import 'package:best_flutter_ui_templates/fitness_app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 
 class BodyMeasurementView extends StatelessWidget {
   final AnimationController? animationController;

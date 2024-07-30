@@ -160,14 +160,6 @@ class _TrainingScreenState extends State<TrainingScreen>
             )
           ],
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            setState(() {
-              isRunning = !isRunning;
-            });
-          },
-          child: Icon(isRunning ? Icons.pause : Icons.play_arrow),
-        ),
       ),
     );
   }
