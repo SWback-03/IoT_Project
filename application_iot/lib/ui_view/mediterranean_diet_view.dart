@@ -21,6 +21,13 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView> with Tick
   int jumpingCount = 0;
   int fallingCount = 0;
 
+  Map<String, bool> previousState = {
+    'sitting': false,
+    'walking': false,
+    'jump': false,
+    'fall': false,
+  };
+
   @override
   void initState() {
     super.initState();
@@ -33,10 +40,21 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView> with Tick
       final snapshot = event.snapshot;
       if (snapshot.exists && snapshot.value is Map) {
         final data = snapshot.value as Map<dynamic, dynamic>;
+
+        // 새로운 상태를 저장하기 위한 임시 맵
+        final newState = Map<String, bool>.from(previousState);
+
         data.forEach((key, value) {
           if (value is bool) {
-            if (value) {
-              setState(() {
+            newState[key] = value; // 새로운 상태로 업데이트
+          }
+        });
+
+        setState(() {
+          newState.forEach((key, value) {
+            if (value != previousState[key]) {
+              if (value) {
+                // 상태가 true로 변경된 경우에만 카운트 증가
                 if (key == 'sitting') {
                   sittingCount++;
                 } else if (key == 'walking') {
@@ -46,16 +64,18 @@ class _MediterranesnDietViewState extends State<MediterranesnDietView> with Tick
                 } else if (key == 'fall') {
                   fallingCount++;
                 }
-              });
+              }
             }
-          }
+          });
+
+          // 상태 업데이트
+          previousState = Map<String, bool>.from(newState);
         });
       }
     }, onError: (error) {
       print('Error receiving data: $error');
     });
   }
-
   @override
   Widget build(BuildContext context) {
     final animationController = widget.animationController!;
