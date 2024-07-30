@@ -63,10 +63,10 @@ class _TrainingScreenState extends State<TrainingScreen>
 
   Future<void> _fetchImageUrl() async {
     try {
-      final response = await http.get(Uri.parse('http://10.221.153.52:5003/'));
+      final response = await http.get(Uri.parse('http://192.168.1.22:5004/'));
       if (response.statusCode == 200) {
         setState(() {
-          _imageUrl = 'http://10.221.153.52:5003/video_feed';
+          _imageUrl = 'http://192.168.1.22:5004/video_feed';
           _isImageInitialized = true;
         });
       } else {

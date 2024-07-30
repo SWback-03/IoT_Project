@@ -1,5 +1,7 @@
 import 'package:best_flutter_ui_templates/fitness_app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class BodyMeasurementView extends StatelessWidget {
   final AnimationController? animationController;
@@ -40,7 +42,7 @@ class BodyMeasurementView extends StatelessWidget {
                   children: <Widget>[
                     Padding(
                       padding:
-                          const EdgeInsets.only(top: 16, left: 16, right: 24),
+                      const EdgeInsets.only(top: 16, left: 16, right: 24),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -113,13 +115,13 @@ class BodyMeasurementView extends StatelessWidget {
                                       ),
                                       Padding(
                                         padding:
-                                            const EdgeInsets.only(left: 4.0),
+                                        const EdgeInsets.only(left: 4.0),
                                         child: Text(
                                           'Today 8:26 AM',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(
                                             fontFamily:
-                                                FitnessAppTheme.fontName,
+                                            FitnessAppTheme.fontName,
                                             fontWeight: FontWeight.w500,
                                             fontSize: 14,
                                             letterSpacing: 0.0,
@@ -194,7 +196,7 @@ class BodyMeasurementView extends StatelessWidget {
                                       fontWeight: FontWeight.w600,
                                       fontSize: 12,
                                       color:
-                                          FitnessAppTheme.grey.withOpacity(0.5),
+                                      FitnessAppTheme.grey.withOpacity(0.5),
                                     ),
                                   ),
                                 ),
