@@ -5,6 +5,8 @@ import 'package:best_flutter_ui_templates/ui_view/title_view.dart';
 import 'package:best_flutter_ui_templates/fitness_app_theme.dart';
 import 'package:best_flutter_ui_templates/my_diary/water_view.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:firebase_database/firebase_database.dart';
 
 class MyDiaryScreen extends StatefulWidget {
   const MyDiaryScreen({Key? key, this.animationController}) : super(key: key);
@@ -21,6 +23,9 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
   List<Widget> listViews = <Widget>[];
   final ScrollController scrollController = ScrollController();
   double topBarOpacity = 0.0;
+  late DatabaseReference databaseRef;
+  String _imageUrl = '';
+  bool _isImageInitialized = false;
 
   @override
   void initState() {
@@ -28,7 +33,10 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
         CurvedAnimation(
             parent: widget.animationController!,
             curve: Interval(0, 0.5, curve: Curves.fastOutSlowIn)));
+
+    databaseRef = FirebaseDatabase.instance.ref();
     addAllListData();
+    _fetchImageUrl();
 
     scrollController.addListener(() {
       if (scrollController.offset >= 24) {
@@ -53,6 +61,29 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
       }
     });
     super.initState();
+  }
+
+  Future<void> _fetchImageUrl() async {
+    try {
+      final DataSnapshot snapshot = await databaseRef.child('flask_url').get();
+      if (snapshot.exists) {
+        String flaskUrl = snapshot.value as String;
+
+        final response = await http.get(Uri.parse(flaskUrl));
+        if (response.statusCode == 200) {
+          setState(() {
+            _imageUrl = '$flaskUrl/video_feed';
+            _isImageInitialized = true;
+          });
+        } else {
+          print('Failed to load image URL: ${response.statusCode}');
+        }
+      } else {
+        print('No URL found in the database');
+      }
+    } catch (e) {
+      print('Error fetching image URL: $e');
+    }
   }
 
   void addAllListData() {
