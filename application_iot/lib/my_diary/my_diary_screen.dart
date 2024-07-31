@@ -75,6 +75,9 @@ class _MyDiaryScreenState extends State<MyDiaryScreen>
             _imageUrl = '$flaskUrl/video_feed';
             _isImageInitialized = true;
           });
+          if (_isImageInitialized) {
+            await http.get(Uri.parse(_imageUrl));
+          }
         } else {
           print('Failed to load image URL: ${response.statusCode}');
         }
