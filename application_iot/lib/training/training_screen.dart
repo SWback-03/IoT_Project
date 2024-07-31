@@ -2,7 +2,7 @@ import 'package:best_flutter_ui_templates/ui_view/title_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mjpeg/flutter_mjpeg.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:firebase_database/firebase_database.dart';
 import '../fitness_app_theme.dart';
 
 class TrainingScreen extends StatefulWidget {
@@ -26,12 +26,17 @@ class _TrainingScreenState extends State<TrainingScreen>
   bool _isImageInitialized = false;
   bool isRunning = true;
 
+  late DatabaseReference databaseRef;
+
   @override
   void initState() {
     topBarAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
         CurvedAnimation(
             parent: widget.animationController!,
             curve: Interval(0, 0.5, curve: Curves.fastOutSlowIn)));
+
+    databaseRef = FirebaseDatabase.instance.ref();
+
     _fetchImageUrl();
     addAllListData();
 
@@ -63,14 +68,21 @@ class _TrainingScreenState extends State<TrainingScreen>
 
   Future<void> _fetchImageUrl() async {
     try {
-      final response = await http.get(Uri.parse('http://192.168.1.22:5004/'));
-      if (response.statusCode == 200) {
-        setState(() {
-          _imageUrl = 'http://192.168.1.22:5004/video_feed';
-          _isImageInitialized = true;
-        });
+      final DataSnapshot snapshot = await databaseRef.child('flask_url').get();
+      if (snapshot.exists) {
+        String flaskUrl = snapshot.value as String;
+
+        final response = await http.get(Uri.parse(flaskUrl));
+        if (response.statusCode == 200) {
+          setState(() {
+            _imageUrl = '$flaskUrl/video_feed';
+            _isImageInitialized = true;
+          });
+        } else {
+          print('Failed to load image URL: ${response.statusCode}');
+        }
       } else {
-        print('Failed to load image URL: ${response.statusCode}');
+        print('No URL found in the database');
       }
     } catch (e) {
       print('Error fetching image URL: $e');

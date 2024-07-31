@@ -33,7 +33,7 @@ class _BodyMeasurementViewState extends State<BodyMeasurementView> with TickerPr
   }
 
   void _initializeListener() {
-    databaseRef.onChildChanged.listen((event) {
+    _databaseSubscription = databaseRef.onChildChanged.listen((event) {
       final snapshot = event.snapshot;
       if (snapshot.exists && snapshot.value is bool) {
         final key = snapshot.key;
